@@ -34,35 +34,37 @@ export function SessionsCard() {
 
   useEffect(() => {
     const fetchLocations = async () => {
-      const newLocations: Record<string, GeolocationData> = { ...locations };
-
       await Promise.all(
         sessions.map(async ({ ipAddress }) => {
-          if (!ipAddress || newLocations[ipAddress]) return;
+          if (!ipAddress) return;
+
+          setLocations((prev) => {
+            if (prev[ipAddress]) return prev; // Already fetched
+            return { ...prev }; // Trigger fetch
+          });
 
           try {
             const res = await fetch(`https://ipapi.co/${ipAddress}/json/`);
             const data = await res.json();
             console.log(`Geolocation for ${ipAddress}:`, data);
 
-            newLocations[ipAddress] = {
-              city: data.city,
-              region: data.region,
-              country: data.country_name,
-              ip: data.ip,
-            };
+            setLocations((prev) => ({
+              ...prev,
+              [ipAddress]: {
+                city: data.city,
+                region: data.region,
+                country: data.country_name,
+                ip: data.ip,
+              },
+            }));
           } catch (error) {
-            console.log(`Failed to fetch location for ${ipAddress}`, error);
+            console.error(`Failed to fetch location for ${ipAddress}`, error);
           }
         })
       );
-
-      setLocations(newLocations);
     };
 
-    if (sessions.length) {
-      fetchLocations();
-    }
+    if (sessions.length) fetchLocations();
   }, [sessions]);
 
   if (!user) return null;
@@ -85,27 +87,27 @@ export function SessionsCard() {
       minute: '2-digit',
     });
 
-  // Map browser names to icons
-  const browserIconMap: Record<string, React.JSX.Element> = {
-    Chrome: <ChromeIcon className="h-6 w-6" />,
-    Firefox: <FirefoxIcon className="h-6 w-6" />,
-    Safari: <SafariIcon className="h-6 w-6" />,
-    Edge: <EdgeIcon className="h-6 w-6" />,
-    Opera: <OperaIcon className="h-6 w-6" />,
-    IE: <InternetExplorerIcon className="h-6 w-6" />,
-    Brave: <BraveIcon className="h-6 w-6" />,
-    Vivaldi: <ViavaldiIcon className="h-6 w-6" />,
-    Postman: <PostmanIcon className="h-6 w-6" />,
+  // Map browser names to icon components
+  const browserIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    Chrome: ChromeIcon,
+    Firefox: FirefoxIcon,
+    Safari: SafariIcon,
+    Edge: EdgeIcon,
+    Opera: OperaIcon,
+    IE: InternetExplorerIcon,
+    Brave: BraveIcon,
+    Vivaldi: ViavaldiIcon,
+    Postman: PostmanIcon,
   };
 
-  // Map OS names to icons
-  const osIconMap: Record<string, React.JSX.Element> = {
-    Windows: <WindowsIcon className="h-6 w-6" />,
-    Mac: <AppleIcon className="h-6 w-6" />,
-    'Mac OS': <AppleIcon className="h-6 w-6" />,
-    Linux: <LinuxIcon className="h-6 w-6" />,
-    Android: <AndroidIcon className="h-6 w-6" />,
-    iOS: <AppleIcon className="h-6 w-6" />,
+  // Map OS names to icon components
+  const osIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    Windows: WindowsIcon,
+    Mac: AppleIcon,
+    'Mac OS': AppleIcon,
+    Linux: LinuxIcon,
+    Android: AndroidIcon,
+    iOS: AppleIcon,
   };
 
   const parseUserAgent = (uaString?: string) => {
@@ -154,25 +156,23 @@ export function SessionsCard() {
         <ul className="flex flex-col gap-6">
           {sessions.map(({ id, userAgent, ipAddress, createdAt, expiresAt }) => {
             const { browserName, osName } = parseUserAgent(userAgent);
-            const OsIcon = osIconMap[osName] || <MonitorIcon className="h-6 w-6 text-muted-foreground" />;
-            const BrowserIcon = browserIconMap[browserName] || <GlobeIcon className="h-6 w-6 text-muted-foreground" />;
+            const OsIcon = osIconMap[osName] || MonitorIcon;
+            const BrowserIcon = browserIconMap[browserName] || GlobeIcon;
             const location = ipAddress ? locations[ipAddress] : null;
             const isPrivateIP = ipAddress?.startsWith('192.') || ipAddress === '127.0.0.1' || ipAddress === '::1';
 
+            const hasValidLocation = location?.city && location?.region && location?.country && !isPrivateIP;
+
             return (
-              <li key={id} className="flex-1 flex justify-between gap-3 items-start rounded-md ">
+              <li key={id} className="flex-1 flex justify-between gap-3 items-start rounded-md">
                 <div className="flex-1 flex items-center justify-center bg-muted/80 rounded-full w-auto aspect-square p-0.5">
-                  {osName === 'Unknown OS' ? BrowserIcon : OsIcon}
+                  {osName === 'Unknown OS' ? <BrowserIcon className="h-6 w-6" /> : <OsIcon className="h-6 w-6" />}
                 </div>
                 <div className="flex-5 flex flex-col gap-0.5 w-full h-full">
                   <p className="font-semibold text-base">{osName === 'Unknown OS' ? browserName : osName}</p>
-                  {!isPrivateIP && location?.city && location?.region && location?.country ? (
-                    <p className="text-xs text-muted-foreground">
-                      Location: {location.city}, {location.region}, {location.country}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">Location: Localhost</p>
-                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Location: {hasValidLocation ? `${location.city}, ${location.region}, ${location.country}` : 'Localhost'}
+                  </p>
                   <p className="text-xs text-muted-foreground">Created: {formatDate(createdAt)}</p>
                   <p className="text-xs text-muted-foreground">Expires: {formatDate(expiresAt)}</p>
                 </div>

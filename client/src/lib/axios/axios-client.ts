@@ -29,6 +29,7 @@ axiosClient.interceptors.response.use(
           await tokenRefreshClient.post('/auth/refresh-token');
           return axiosClient.request(config);
         } catch (refreshError) {
+          console.log(refreshError);
           redirect('/sign-in');
         }
       }

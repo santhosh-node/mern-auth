@@ -12,7 +12,6 @@ export const axiosServerClient = axios.create({
 export const createAxiosClient = async () => {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('accessToken')?.value;
-  const refreshToken = cookieStore.get('refreshToken')?.value;
 
   const axiosInstance = axios.create({
     baseURL: 'http://localhost:8000/api/v1',

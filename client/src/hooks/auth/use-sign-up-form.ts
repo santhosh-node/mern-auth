@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SignUpDTO, SignUpSchema } from '@/lib/validations/auth';
 import { signUpAPI } from '@/lib/api/auth';
+import axios from 'axios';
 
 type FormNextHref = '/sign-up' | '/sign-in' | '/forgot-password' | '/' | '';
 
@@ -38,9 +39,16 @@ export function useSignUpForm(defaultValues?: Partial<SignUpDTO>) {
       console.log('SignUp Form Submitted:', values);
       await signUpAPI(values);
       setFormState({ success: true, data: values, href: '/', errorCode: '' });
-    } catch (error: any) {
-      console.error('Form submission error:', error);
-      const errorCode = error?.response?.data?.errorCode ?? '';
+    } catch (error) {
+      let errorCode = '';
+
+      if (axios.isAxiosError(error)) {
+        errorCode = error.response?.data?.errorCode ?? 'UNKNOWN_AXIOS_ERROR';
+        console.error('Axios error:', error.response?.data || error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
+
       setFormState({ success: false, data: initialValues, href: '', errorCode });
     }
   }

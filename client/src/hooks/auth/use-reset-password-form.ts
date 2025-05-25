@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ResetPasswordDTO, ResetPasswordSchema } from '@/lib/validations/auth';
-import { forgotPasswordAPI, resetPasswordAPI } from '@/lib/api/auth';
+import { resetPasswordAPI } from '@/lib/api/auth';
+import axios from 'axios';
 
 type FormNextHref = '/sign-up' | '/sign-in' | '/forgot-password' | '/' | '';
 
@@ -38,9 +39,16 @@ export function useResetPasswordForm(defaultValues?: Partial<ResetPasswordDTO>) 
       console.log('Reset Password Form Submitted:', values);
       await resetPasswordAPI(values);
       setFormState({ success: true, data: values, href: '/sign-in', errorCode: undefined });
-    } catch (error: any) {
-      console.error('Form submission error:', error);
-      const errorCode = error?.response?.data?.errorCode ?? 'UNKNOWN_ERROR';
+    } catch (error) {
+      let errorCode = 'UNKNOWN_ERROR';
+
+      if (axios.isAxiosError(error)) {
+        errorCode = error.response?.data?.errorCode ?? 'UNKNOWN_AXIOS_ERROR';
+        console.error('Axios error:', error.response?.data || error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
+
       setFormState({ success: false, data: initialValues, href: '', errorCode });
     }
   }

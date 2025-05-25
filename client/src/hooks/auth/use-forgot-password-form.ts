@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ForgotPasswordDTO, ForgotPasswordSchema } from '@/lib/validations/auth';
 import { forgotPasswordAPI } from '@/lib/api/auth';
+import axios from 'axios';
 
 type FormNextHref = '/sign-up' | '/sign-in' | '/forgot-password' | '/' | '';
 
@@ -35,11 +36,28 @@ export function useForgotPasswordForm(defaultValues?: Partial<ForgotPasswordDTO>
     try {
       console.log('Forgot Password Form Submitted:', values);
       await forgotPasswordAPI(values);
-      setFormState({ success: true, data: values, href: '', errorCode: undefined });
-    } catch (error: any) {
-      console.error('Form submission error:', error);
-      const errorCode = error?.response?.data?.errorCode ?? 'UNKNOWN_ERROR';
-      setFormState({ success: false, data: initialValues, href: '', errorCode });
+      setFormState({
+        success: true,
+        data: values,
+        href: '',
+        errorCode: undefined,
+      });
+    } catch (error) {
+      let errorCode = 'UNKNOWN_ERROR';
+
+      if (axios.isAxiosError(error)) {
+        errorCode = error.response?.data?.errorCode ?? 'UNKNOWN_AXIOS_ERROR';
+        console.error('Axios error:', error.response?.data || error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
+
+      setFormState({
+        success: false,
+        data: initialValues,
+        href: '',
+        errorCode,
+      });
     }
   }
 
