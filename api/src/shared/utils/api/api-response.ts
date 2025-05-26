@@ -1,9 +1,9 @@
 import { CookieOptions, Response } from 'express';
-import { ApiErrorCode, HttpStatusCode, NODE_ENV } from '../../constants';
+import { ApiErrorCode, HttpStatusCode, NODE_ENV, RENDER } from '../../constants';
 
 const defaultOptions: CookieOptions = {
   httpOnly: true,
-  secure: NODE_ENV === 'production',
+  secure: RENDER === 'true' || NODE_ENV === 'production',
   sameSite: 'none',
   path: '/',
   maxAge: 1000 * 60 * 60 * 24,

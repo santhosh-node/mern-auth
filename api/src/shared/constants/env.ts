@@ -1,8 +1,9 @@
 import 'dotenv/config';
-import { jwtExpiresToDate } from '../utils/helpers';
 import { getEnvAsJwtExpires, getEnvAsNumber, getEnvAsString } from '../utils/helpers';
 
 export const NODE_ENV = getEnvAsString('NODE_ENV', 'development');
+
+export const RENDER = getEnvAsString('RENDER', 'false');
 
 export const PORT = getEnvAsNumber('PORT', 3000);
 
