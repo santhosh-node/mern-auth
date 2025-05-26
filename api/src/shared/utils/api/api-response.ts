@@ -6,6 +6,7 @@ const defaultOptions: CookieOptions = {
   secure: NODE_ENV === 'production',
   sameSite: 'none',
   path: '/',
+  maxAge: 1000 * 60 * 60 * 24,
 };
 
 export class ApiResponse<T = any> {
