@@ -58,7 +58,7 @@ export function SessionsCard() {
               },
             }));
           } catch (error) {
-            console.error(`Failed to fetch location for ${ipAddress}`, error);
+            console.log(`Failed to fetch location for ${ipAddress}`, error);
           }
         })
       );

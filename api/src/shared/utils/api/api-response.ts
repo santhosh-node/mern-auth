@@ -4,9 +4,8 @@ import { ApiErrorCode, HttpStatusCode, NODE_ENV, RENDER } from '../../constants'
 const defaultOptions: CookieOptions = {
   httpOnly: true,
   secure: RENDER === 'true' || NODE_ENV === 'production',
-  sameSite: 'none',
+  sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
   path: '/',
-  maxAge: 1000 * 60 * 60 * 24,
 };
 
 export class ApiResponse<T = any> {
@@ -53,6 +52,8 @@ export class ApiResponse<T = any> {
   }
 
   static setCookie(res: Response, { name, value, options = {} }: { name: string; value: string; options?: CookieOptions }) {
+    console.log(defaultOptions);
+
     res.cookie(name, value, { ...defaultOptions, ...options });
   }
 

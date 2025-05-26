@@ -20,7 +20,7 @@ export function GuestWelcome() {
   }
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center">
+    <div className="h-full flex flex-col items-center justify-center">
       <h2 className="text-3xl font-black mb-5">Welcome</h2>
 
       <div className="flex items-center gap-2">
