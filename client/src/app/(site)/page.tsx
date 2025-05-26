@@ -4,7 +4,7 @@ import { GuestWelcome } from '@/components/modules/guest-welcome';
 
 export default function Home() {
   return (
-    <div className="h-screen flex flex-col items-center justify-center gap-6 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-4">
       <GuestWelcome />
       <ProfileCard />
       <SessionsCard />
