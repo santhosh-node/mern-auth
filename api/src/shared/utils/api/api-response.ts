@@ -4,7 +4,7 @@ import { ApiErrorCode, HttpStatusCode, NODE_ENV } from '../../constants';
 const defaultOptions: CookieOptions = {
   httpOnly: true,
   secure: NODE_ENV === 'production',
-  sameSite: 'lax',
+  sameSite: 'none',
   path: '/',
 };
 
