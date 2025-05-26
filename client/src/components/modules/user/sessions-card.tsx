@@ -170,9 +170,11 @@ export function SessionsCard() {
                 </div>
                 <div className="flex-5 flex flex-col gap-0.5 w-full h-full">
                   <p className="font-semibold text-base">{osName === 'Unknown OS' ? browserName : osName}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Location: {hasValidLocation ? `${location.city}, ${location.region}, ${location.country}` : 'Localhost'}
-                  </p>
+                  {hasValidLocation && (
+                    <p className="text-xs text-muted-foreground">
+                      Location: {hasValidLocation ? `${location.city}, ${location.region}, ${location.country}` : 'Localhost'}
+                    </p>
+                  )}
                   <p className="text-xs text-muted-foreground">Created: {formatDate(createdAt)}</p>
                   <p className="text-xs text-muted-foreground">Expires: {formatDate(expiresAt)}</p>
                 </div>
